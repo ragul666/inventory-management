@@ -132,7 +132,7 @@ export default function EditGodown() {
             </Button>
           </Box>
         </Box>
-        <Link to="/godownDetails">
+        <Link to="/godowndetails">
           <Button
             type="submit"
             variant="contained"

@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 });
 const theme = createTheme();
 
-const godownDetails = () => {
+const GodownDetails = () => {
   const classes = useStyles();
   const baseURL = "http://localhost:3005/api/v1/godown/getAllGodowns";
   const baseURL1 = "";
@@ -256,4 +256,4 @@ const godownDetails = () => {
   );
 };
 
-export default godownDetails;
+export default GodownDetails;

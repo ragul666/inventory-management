@@ -1,5 +1,6 @@
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 // import FormControlLabel from "@mui/material/FormControlLabel";
@@ -13,10 +14,6 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-
-
 import {
   useLocation
 } from "react-router-dom";
@@ -33,7 +30,6 @@ export default function Signup({ signupData }) {
   const [error, setError] = React.useState(null);
   const [success, setSucess] = React.useState(null);
   const handleSubmit = (event) => {
-    console.log(event.currentTarget)
     event.preventDefault();
     const baseURL = "http://localhost:3005/api/v1/user/signUp";
     const data = new FormData(event.currentTarget);
@@ -44,16 +40,26 @@ export default function Signup({ signupData }) {
     let hobby = data.get("hobby");
     let role = data.get("role");
     let token;
-  
+    if (signupData) {
+      let signUpToken = location.search;
+      token = signUpToken.substring(signUpToken.indexOf('=') + 1);
+    }
 
-    const employeeCreateUserData =  {
+    const employeeCreateUserData = signupData ? {
+      name,
+      phoneNumber,
+      email,
+      hobby,
+      password,
+      role: signupData.role,
+      id: signupData.id,
+    } : {
       name,
       phoneNumber,
       email,
       hobby,
       password,
     };
-    console.log("signup data",employeeCreateUserData)
     if (signupData) {
       signupData.shopId ? employeeCreateUserData["shopId"] = signupData.shopId : employeeCreateUserData["godownId"] = signupData.godownId
     }
@@ -78,44 +84,188 @@ export default function Signup({ signupData }) {
   };
 
   return (
-    <div>
-      <div className="flex align-items-center justify-content-center pt-8 ">
-        <div className="surface-card p-4 shadow-2 border-round w-full lg:w-6 mt-10">
-          <div className="text-center text-900 text-3xl font-medium mb-5">SignUp as a  user!</div>
-          <div>
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 0.5 }}>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="name" className="block text-900 font-medium mb-2">Name</label>
-                <InputText style={{ width: '100%' }} id="name" name="name" type="text" />
-              </div>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="email" className="block text-900 font-medium mb-2">Email</label>
-                <InputText style={{ width: '100%' }} id="email" name="email" type="email" />
-              </div>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="password" className="block text-900 font-medium mb-2">Password</label>
-                <InputText id="password" style={{ width: '100%' }} name="password" type="password" />
-              </div>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="name" className="block text-900 font-medium mb-2">Hobby</label>
-                <InputText style={{ width: '100%' }} id="hobby" name="hobby" type="text" />
-              </div>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="phone" className="block text-900 font-medium mb-2">Phone</label>
-                <InputText style={{ width: '100%' }} id="phone" name="phone" type="text" />
-              </div>
-              <div className="text-center mb-5">
-                <span className="text-600 font-medium line-height-3">Already have an account?</span>
-                <a className="font-medium no-underline ml-2 text-blue-500 cursor-pointer" onClick={handleSignup}>Login here!</a>
-              </div>
-              <Button type="submit" label="Log In" icon="pi pi-user" className="w-full" />
-            </Box>
-          </div>
-        </div>
-      </div>
+    <ThemeProvider theme={theme}>
 
-
-
-    </div>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          marginTop: "4rem",
+          border: "solid",
+          borderRadius: "4px",
+          color: "red",
+          paddingBottom: "30px",
+        }}
+      >
+        {error && (
+          <h3 className="error" >{error} </h3>
+        )}
+        {success && (
+          <h3>{success} </h3>
+        )}
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "red" }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" sx={{ color: "black" }}>
+            Sign up as New User
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
+          >
+            {signupData ? <><TextField
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              name="name"
+              readOnly={true}
+              value={signupData.name}
+            />  <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                name="email"
+                readOnly={true}
+                value={signupData.email}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="phone"
+                name="phone"
+                readOnly={true}
+                value={signupData.phoneNumber}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="hobby"
+                label="Hobby"
+                name="hobby"
+                autoComplete="hobby"
+                autoFocus
+              /></> : <><TextField
+                margin="normal"
+                required
+                fullWidth
+                id="name"
+                label="Name"
+                name="name"
+                autoComplete="name"
+                autoFocus
+              /> <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="phone"
+                label="Phone"
+                name="phone"
+                autoComplete="phone"
+                autoFocus
+              />{" "}
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="hobby"
+                label="Hobby"
+                name="hobby"
+                autoComplete="hobby"
+                autoFocus
+              /> </>}
+            {/* <select
+              id="role"
+              name="role"
+              style={{
+                display: "flex",
+                width: "100%",
+                height: "58px",
+                width: "100%",
+                padding: "12px 20px",
+                fontSize: "20px",
+                margin: "8px 0",
+                display: "inline-block",
+                border: "1px solid #ccc",
+                borderRadius: " 4px",
+                boxSizing: "border-box",
+              }}
+            >
+              <option value="cust">Customer</option>
+              <option value="emp">Employee</option>
+              <option value="admin">Admin</option>
+            </select> */}
+            {/* <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            /> */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link variant="body2" onClick={handleSignup}>
+                  {"Already have an account? Log In"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }

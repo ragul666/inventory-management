@@ -1,26 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { Checkbox } from 'primereact/checkbox';
-import { Card } from 'primereact/card';
-import { useNavigate, } from "react-router-dom";
-import { useFormik } from "formik";
-import { classNames } from 'primereact/utils';
-import axios from "axios";
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-
-function Login() {
-  const baseURL = "http://localhost:3005/api/v1/user/login";
+const theme = createTheme();
+const baseURL = "http://localhost:3005/api/v1/user/login";
+export default function Login() {
   const [postData, setPostData] = React.useState();
   const [error, setError] = React.useState(null);
   let navigate = useNavigate();
   const formRef = React.useRef();
-  const handleSignUp = () => {
-    navigate("/signUp");
-  };
+
   const handleSubmit = (event) => {
-    console.log("current target",event.currentTarget)
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let email = data.get("email");
@@ -62,36 +65,76 @@ function Login() {
     navigate("/signUp");
   };
   return (
-    <div>
-      <div className="flex align-items-center justify-content-center pt-8 ">
-        <div className="surface-card p-4 shadow-2 border-round w-full lg:w-6 mt-10">
-          <div className="text-center text-900 text-3xl font-medium mb-5">Login as an Existing user!</div>
-          <div>
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 0.5 }}>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="email" className="block text-900 font-medium mb-2">Email</label>
-                <InputText style={{width:'100%'}} id="email" name="email" type="email" />
-              </div>
-              <div className="field col-12 md:col-12">
-                <label htmlFor="password" className="block text-900 font-medium mb-2">Password</label>
-                <InputText id="password"style={{width:'100%'}} name="password" type="password" />
+    <ThemeProvider theme={theme}>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          marginTop: "8%",
+          boxShadow: "2px 4px 10px 1px",
+          borderRadius: "10px",
+          paddingBottom: "30px",
+        }}
+      >
+        {/* {error && <h3 className="error">{error} </h3>} */}
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "blue" }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" sx={{ color: "black" }}>
+            Log in to Inventory Management
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 0.5 }}>
+            <TextField
+              required
+              email
+              margin="normal"
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoFocus
+            />
+            <TextField
+              required
+              margin="normal"
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 1, mb: 2 }}
+            >
+              Sign In
+            </Button>
 
-              </div>
-
-              <div className="text-center mb-5">
-                <span className="text-600 font-medium line-height-3">Don't have an account?</span>
-                <a className="font-medium no-underline ml-2 text-blue-500 cursor-pointer" onClick={handleSignUp}>Create today!</a>
-              </div>
-              <Button type="submit" label="Log In" icon="pi pi-user" className="w-full" />
-            </Box>
-          </div>
-        </div>
-      </div>
-
-
-
-    </div>
-  )
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
+  );
 }
-
-export default Login

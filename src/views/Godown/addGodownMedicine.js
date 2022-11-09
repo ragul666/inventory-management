@@ -80,9 +80,9 @@ const CreateMedicine = () => {
     console.log("medicines", medicines);
     const medicineData = godownId
       ? {
-        godownId,
-        medicines,
-      }
+          godownId,
+          medicines,
+        }
       : { shopId, medicines };
     let token = localStorage.getItem("authToken");
     const config = {

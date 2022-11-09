@@ -15,9 +15,9 @@ import { Link } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
 import Header from "../../layouts/header";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import axios from "axios";
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
@@ -25,18 +25,19 @@ const useStyles = makeStyles({
 });
 const theme = createTheme();
 
-const EmployeeDetails = () => {
+const MedicineDetails = () => {
   const classes = useStyles();
   const [searched, setSearched] = useState("");
-  const baseURL = "http://localhost:3005/api/v1/employee/getEmployee";
-  const baseURL1 = "http://localhost:3005/api/v1/employee/change";
+  const baseURL = "http://localhost:3005/api/v1/shop/getMedicineFromShop";
+  const baseURL1 = "http://localhost:3005/api/v1/godown/getMedicines/";
+  const baseURL2 = "http://localhost:3005/api/v1/medicines/remove";
 
   const requestSearch = (searchedVal) => {
     // if (!searchedVal)
     //  setRows(postData.data);
     console.log(searchedVal);
     const filteredRows = postData?.data?.filter((data) => {
-      return data.name.toLowerCase().includes(searchedVal.toLowerCase());
+      return data.company.toLowerCase().includes(searchedVal.toLowerCase());
     });
     setRows(filteredRows);
     console.log(filteredRows);
@@ -46,18 +47,12 @@ const EmployeeDetails = () => {
     setSearched("");
     requestSearch(searched);
   };
-  let navigate = useNavigate();
-
-  const detail = (state) => {
-    navigate("/editEmployee", { state });
-  };
-
   const handleDelete = (data) => {
     let id = data.id;
     const data1 = { id };
     console.log(data1);
     axios
-      .put(baseURL1, data1, config)
+      .put(baseURL2, data1, config)
       .then((response) => {
         setPostData(response.data);
         setRows(response.data.data);
@@ -66,33 +61,59 @@ const EmployeeDetails = () => {
     setTimeout(() => {
       setCount((count) => count + 1);
     }, 1000);
-    // window.location.reload();
+    window.location.reload();
   };
+  let navigate = useNavigate();
+
   const handleNewUser = () => {
-    navigate("/createUser");
+    navigate("/expiredMedicine");
+  };
+  const detail = (state) => {
+    navigate("/editMedicine", { state });
   };
   const [postData, setPostData] = React.useState({});
   const [rows, setRows] = useState([]);
-
   const [error, setError] = React.useState(null);
   const [count, setCount] = useState(0);
   let token = localStorage.getItem("authToken");
+  let role = localStorage.getItem("role");
+  let shopId = localStorage.getItem("shopId");
+  let godownId = localStorage.getItem("godownId");
+  let shopIdSend = { shopId };
+  let sendData = null;
+
   const config = {
     headers: { authToken: token },
   };
   useEffect(() => {
+    getMedicineList();
+  }, []);
+  // console.log("shop:",shopIdSend);
+  function getMedicineList() {
+    if (role === "shopAdmin") {
+      sendData = shopIdSend;
+      URL = baseURL;
+    } else if (role === "godownAdmin") {
+      sendData = null;
+      URL = baseURL1 + godownId;
+    } else {
+      URL = baseURL;
+    }
     axios
-      .get(baseURL, config)
+      .get(URL, config)
       .then((response) => {
-        setPostData(response.data);
-        setRows(response.data.data);
+        if (response.data.code === 200) {
+          setPostData(response.data);
+          setRows(response.data.data);
+        }
       })
       .catch((error) => setError(error));
     setTimeout(() => {
       setCount((count) => count + 1);
     }, 1000);
-  }, []);
-  console.log(postData);
+  }
+  console.log({ rows });
+
   return (
     <ThemeProvider theme={theme}>
       <Header />
@@ -106,7 +127,7 @@ const EmployeeDetails = () => {
         }}
       >
         <Typography component="h1" variant="h5" sx={{ marginLeft: "40%" }}>
-          <b> Employee Details</b>
+          <b> Medicine Details</b>
         </Typography>
         <SearchBar
           style={{
@@ -116,7 +137,7 @@ const EmployeeDetails = () => {
             border: "solid 2px",
             color: "red",
           }}
-          placeholder="Search Employee Name"
+          placeholder="Search Medicine Company"
           value={searched}
           onChange={(searchVal) => requestSearch(searchVal)}
           onCancelSearch={() => cancelSearch()}
@@ -129,16 +150,19 @@ const EmployeeDetails = () => {
                   <b>Name</b>
                 </TableCell>
                 <TableCell align="right">
-                  <b>Date of Birth</b>
+                  <b>Manufacture Date</b>
                 </TableCell>
                 <TableCell align="right">
-                  <b>Email</b>{" "}
+                  <b>Expiry Date </b>
                 </TableCell>
                 <TableCell align="right">
-                  <b>Phone</b>
+                  <b>Unit Price(₹)</b>
                 </TableCell>
                 <TableCell align="right">
-                  <b>Role</b>
+                  <b>Medicine Type</b>
+                </TableCell>
+                <TableCell align="right">
+                  <b>Company Name</b>
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -146,36 +170,19 @@ const EmployeeDetails = () => {
               {rows?.map((data) => (
                 <TableRow>
                   <TableCell component="th" scope="row">
-                    {data.name}
+                    {data.medicineName}
                   </TableCell>
-                  <TableCell align="right">{data.dob}</TableCell>
-                  <TableCell align="right">{data.email}</TableCell>
-                  <TableCell align="right">{data.mobile}</TableCell>
-                  <TableCell align="right">{data.role}</TableCell>
-                  <TableCell align="right">
-                    <Button
-                      variant="contained"
-                      style={{
-                        color: "white",
-                        margin: "10px",
-                        background: "green",
-                      }}
-                      onClick={() => detail(data)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="contained"
-                      style={{ color: "white", background: "red" }}
-                      onClick={() => handleDelete(data)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
+                  <TableCell align="right">{data.manufactureDate}</TableCell>
+                  <TableCell align="right">{data.expiryDate}</TableCell>
+                  <TableCell align="right">{data.unitPrice}</TableCell>
+                  <TableCell align="right">{data.medicineType}</TableCell>
+                  <TableCell align="right">{data.company}</TableCell>
+                  <TableCell align="right"></TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          {/* <Pagination count={10} /> */}
         </TableContainer>
         <Link to="/dashboard">
           <Button
@@ -193,26 +200,35 @@ const EmployeeDetails = () => {
           </Button>
         </Link>
 
-        <Link to="/createEmployee">
+        {role !== "cus" && (
           <Button
             type="submit"
             variant="contained"
-            style={{ marginLeft: "10px", margin: "10px" }}
+            style={{ marginLeft: "10px", margin: "10px", background: "grey" }}
+            onClick={handleNewUser}
           >
-            Add New Employee
+            Expired Medicines
           </Button>
-        </Link>
-        <Button
-          type="submit"
-          variant="contained"
-          style={{ marginLeft: "10px", margin: "10px", background: "grey" }}
-          onClick={handleNewUser}
-        >
-          Create Employee User
-        </Button>
+        )}
+
+        {role === "cus" && (
+          <Link to="/addOrders">
+            <Button
+              type="submit"
+              variant="contained"
+              style={{
+                marginLeft: "10px",
+                margin: "10px",
+                background: "green ",
+              }}
+            >
+              Add New Order
+            </Button>
+          </Link>
+        )}
       </Paper>
     </ThemeProvider>
   );
 };
 
-export default EmployeeDetails;
+export default MedicineDetails;
